@@ -219,6 +219,16 @@ function resolve1(numbers) {
 }
 
 function resolve2(numbers) {
+  // numbers.forEach(n1=> {
+  //   numbers.forEach(n2 => {
+  //     numbers.forEach(n3 => {
+  //       if (n1 + n2 + n3 === 2020) found = {n1, n2, n3};
+  //     })
+  //   })
+  // })
+  // return found.n1 * found.n2 * found.n3;
+
+  // More optimized
   let found = 0;
 
   let i = 0
@@ -237,28 +247,7 @@ function resolve2(numbers) {
     i++;
   };
   return found;
-  // numbers.forEach(n1=> {
-  //   numbers.forEach(n2 => {
-  //     numbers.forEach(n3 => {
-  //       if (n1 + n2 + n3 === 2020) found = {n1, n2, n3};
-  //     })
-  //   })
-  // })
-  // return found.n1 * found.n2 * found.n3;
 }
-
-
-1, 2, 3, 4, 5, 6, 7, 8
-
-158
-
-111
-112
-113
-
-
-
-
 
 const input = parseInput(inputText);
 const output = resolve2(input);
