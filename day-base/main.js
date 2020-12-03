@@ -1,5 +1,5 @@
 var inputText = `
-
+base input
 `;
 
 function parseInput(inputText) {
