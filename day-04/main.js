@@ -81,7 +81,8 @@ function validate(key, textValue) {
         'hgt': textValue => {
             const len = textValue.length;
             if (len < 3) return false;
-            const [value, metric] = [parseInt(textValue.slice(0, len-2)), textValue.slice(len-2, len)];
+            const value = parseInt(textValue.slice(0, len-2));
+            const metric = textValue.slice(len-2, len);
             if (metric === 'cm') return 150 <= value && value <= 193;
             else if (metric === 'in') return 59 <= value && value <= 76;
             else return false;
@@ -104,6 +105,9 @@ function validate(key, textValue) {
 console.assert(validate('byr', '2002') === true);
 console.assert(validate('byr', '2003') === false);
 
+// hgt (Height) - a number followed by either cm or in:
+//      If cm, the number must be at least 150 and at most 193.
+//      If in, the number must be at least 59 and at most 76.
 // hgt valid:   60in
 // hgt valid:   190cm
 // hgt invalid: 190in
@@ -112,6 +116,16 @@ console.assert(validate('hgt', '60in') === true);
 console.assert(validate('hgt', '190cm') === true);
 console.assert(validate('hgt', '190in') === false);
 console.assert(validate('hgt', '190') === false);
+console.assert(validate('hgt', '150cm') === true);
+console.assert(validate('hgt', '149cm') === false);
+console.assert(validate('hgt', '193cm') === true);
+console.assert(validate('hgt', '194cm') === false);
+console.assert(validate('hgt', '58in') === false);
+console.assert(validate('hgt', '59in') === true);
+console.assert(validate('hgt', '76in') === true);
+console.assert(validate('hgt', '77in') === false);
+console.assert(validate('hgt', '77im') === false);
+console.assert(validate('hgt', '76im') === false);
 
 // hcl valid:   #123abc
 // hcl invalid: #123abz
@@ -136,6 +150,10 @@ function resolve2(passports) {
         .filter((passportKeys, i) => {
             // if (i === 1) debugger;
             if (passportKeys < 7) return false;
+            if (![
+                'byr','iyr','eyr','hgt',
+                'hcl','ecl','pid'
+            ].every(k=>passportKeys.some(o => o.key === k))) return false;
             if (passportKeys.length === 7 && passportKeys.includes('cid')) return false;
             for (const index in passportKeys) {
                 const {key, textValue} = passportKeys[index];
@@ -144,6 +162,8 @@ function resolve2(passports) {
             }
             return true;
         })
+        // .filter(o=>o.find(k=>k.key === 'byr'))
+        // .map(o=>o.find(k=>k.key === 'byr')['byr'])
         .length; // not 87, or 172 (too high)
 }
 
