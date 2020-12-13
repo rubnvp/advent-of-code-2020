@@ -4,7 +4,7 @@
 // F7
 // R90
 // F11
-// `; // 43,586 too high
+// `;
 
 function parseInput(inputText) {
     return inputText
@@ -21,12 +21,12 @@ const [EAST, NORTH, WEST, SOUTH, RIGHT, LEFT, FORWARD] = ['E', 'N', 'W', 'S', 'R
 function resolve1(actions) {
     let [posX, posY, angle] = [0, 0, 0];
     const actionMap = {
-        [EAST]:  value => {posX += value;},
-        [NORTH]: value => {posY += value;},
-        [WEST]:  value => {posX -= value;},
-        [SOUTH]: value => {posY -= value;},
-        [RIGHT]: value => {angle -= value;},
-        [LEFT]:  value => {angle += value;},
+        [EAST]:  value => posX += value,
+        [NORTH]: value => posY += value,
+        [WEST]:  value => posX -= value,
+        [SOUTH]: value => posY -= value,
+        [RIGHT]: value => angle -= value,
+        [LEFT]:  value => angle += value,
         [FORWARD](value) {
             let finalAngle = angle % 360;
             if (finalAngle < 0) finalAngle += 360;
@@ -44,57 +44,35 @@ function resolve1(actions) {
 function resolve2(actions) {
     let shipPos = {x: 0, y: 0};
     let wayPos = {x: 10, y: 1};
-    function getQuadrant({x, y}) {
-        if (y > 0) {
-            if (x > 0) return 0;
-            else return 1;
-        } else {
-            if (x < 0) return 2;
-            else return 3;
-        }
-    }
-    function setWaypointInQuadrant(quadrant, flip){
+    const getQuadrant = ({x, y}) => y > 0
+        ? x > 0 ? 0 : 1
+        : x < 0 ? 2 : 3;
+    function setWaypoint({quadrant, flip}){
         let [x, y] = [Math.abs(wayPos.x), Math.abs(wayPos.y)];
-        if (flip) {
-            [x, y] = [y, x];
-        }
-        if (quadrant === 0) {
-            wayPos = {x, y};
-        } else if (quadrant === 1) {
-            wayPos = {x: -x, y};
-        } else if (quadrant === 2) {
-            wayPos = {x: -x, y: -y};
-        } else if (quadrant === 3) {
-            wayPos = {x, y: -y};
-        }
+        if (flip) [x, y] = [y, x];
+        if (quadrant === 0) wayPos = {x, y};
+        if (quadrant === 1) wayPos = {x: -x, y};
+        if (quadrant === 2) wayPos = {x: -x, y: -y};
+        if (quadrant === 3) wayPos = {x, y: -y};
     }
     const actionMap = {
-        [EAST]:  value => {wayPos.x += value;},
-        [NORTH]: value => {wayPos.y += value;},
-        [WEST]:  value => {wayPos.x -= value;},
-        [SOUTH]: value => {wayPos.y -= value;},
+        [EAST]:  value => wayPos.x += value,
+        [NORTH]: value => wayPos.y += value,
+        [WEST]:  value => wayPos.x -= value,
+        [SOUTH]: value => wayPos.y -= value,
         [LEFT]:  value => {
             const quadrant = getQuadrant(wayPos);
             const valueMap = {
-                90: () => {
-                    const nextQuadrant = [1, 2, 3, 0][quadrant];
-                    setWaypointInQuadrant(nextQuadrant, true);
-                },
-                180: () => {
-                    const nextQuadrant = [2, 3, 0, 1][quadrant];
-                    setWaypointInQuadrant(nextQuadrant, false);
-                },
-                270: () => {
-                    const nextQuadrant = [3, 0, 1, 2][quadrant];
-                    setWaypointInQuadrant(nextQuadrant, true);
-                },
+                90:  {quadrant: [1, 2, 3, 0][quadrant], flip: true},
+                180: {quadrant: [2, 3, 0, 1][quadrant], flip: false},
+                270: {quadrant: [3, 0, 1, 2][quadrant], flip: true},
             };
-            valueMap[value]();
+            setWaypoint(valueMap[value]);
         },
         [RIGHT](value) {
             this[LEFT]([270, 180, 90][value / 90 - 1]);
         },
-        [FORWARD](value) {
+        [FORWARD]: value => {
             shipPos.x += wayPos.x * value;
             shipPos.y += wayPos.y * value;
         },
