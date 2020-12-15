@@ -1,6 +1,6 @@
-var inputText = `
-0,3,6
-`; // expected output: 436 (part 1) 175594 (part 2)
+// var inputText = `
+// 0,3,6
+// `; // expected output: 436 (part 1) 175594 (part 2)
 
 function parseInput(inputText) {
     return inputText
@@ -25,21 +25,21 @@ function resolve1(numbers) {
 }
 
 function resolve2(numbers) {
-    const MAX_TURN = 3000000;// for 3000000 (expected 3240) // for 120000 (expected 2216) // 30000000
+    const MAX_TURN = 30000000;// for 3000000 (expected 3240) // for 120000 (expected 2216) // 30000000
     const length = numbers.length;
-    const numberPos = numbers
+    const numberPos = new Map(); // this is really strange, the difference in performance using an object and a Map is so huge
+    numbers
         .slice(0, length - 1)
-        .reduce((numberPos, num, i)=> ({
-            ...numberPos,
-            [num]: i + 1,
-        }), {});
+        .forEach((num, i)=> {
+            numberPos.set(num, i + 1);
+        });
     
     let lastNumber = numbers[length - 1];
     for (let i = length; i < MAX_TURN; i++) {
-        const nextNumber = numberPos[lastNumber] !== undefined
-            ? i - numberPos[lastNumber]
+        const nextNumber = numberPos.get(lastNumber) !== undefined
+            ? i - numberPos.get(lastNumber)
             : 0;
-        numberPos[lastNumber] = i;
+            numberPos.set(lastNumber, i);
         lastNumber = nextNumber;
     }
 
