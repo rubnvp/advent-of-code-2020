@@ -27,7 +27,9 @@ function resolve1(numbers) {
 function resolve2(numbers) {
     const MAX_TURN = 30000000;// for 3000000 (expected 3240) // for 120000 (expected 2216) // 30000000
     const length = numbers.length;
-    const numberPos = new Map(); // this is really strange, the difference in performance using an object and a Map is so huge
+    // this is really strange, the difference in performance using an object and a Map is so huge
+    // with an array initialized like new Array(MAX_TURN) (not new Array({length: MAX_TURN})) it goes even faster
+    const numberPos = new Map();
     numbers
         .slice(0, length - 1)
         .forEach((num, i)=> {
