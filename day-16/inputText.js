@@ -1,0 +1,3 @@
+var inputText = `
+base input
+`;
