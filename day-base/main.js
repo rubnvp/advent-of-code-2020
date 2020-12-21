@@ -10,10 +10,6 @@ function resolve1(input) {
     return input;
 }
 
-function resolve2(input) {
-    return input;
-}
-
 console.time('time');
 const input = parseInput(inputText);
 const output = resolve1(input);
