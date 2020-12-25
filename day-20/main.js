@@ -111,23 +111,27 @@ Tile 3079:
 const reverseText = text => text.split('').reverse().join('');
 
 const spinTile = (tile) => {
-    const {top, right, bottom, left} = tile.border;
-    tile.border = {
-        top: reverseText(left),
-        right: top,
-        bottom: reverseText(right),
-        left: bottom,
-    };
+    const columns = tile.rows.map(() => [])
+    tile.rows.forEach(row => {
+        row.split('').forEach((char, i) => {
+            columns[i].push(char);
+        });
+    });
+    tile.rows = columns.map(col => col.reverse().join(''));
 };
 
 const flipTile = (tile) => {
-    const {top, right, bottom, left} = tile.border;
-    tile.border = {
-        top: reverseText(top),
-        right: left,
-        bottom: reverseText(bottom),
-        left: right,
-    };
+    tile.rows = tile.rows
+        .map(row => reverseText(row));
+}
+
+const getBorder = (position, rows) => {
+    return {
+        'top': rows => rows[0],
+        'right': rows => rows.map(row => row[row.length - 1]).join(''),
+        'bottom': rows => rows[rows.length - 1],
+        'left': rows => rows.map(row => row[0]).join(''),
+    }[position](rows);
 }
 
 const oppositePosition = {
@@ -142,26 +146,13 @@ function parseInput(inputText) {
         .trim()
         .split('\n\n')
         .map(tileBlock => {
-            const [tileHeader, ...tileLines] = tileBlock
+            const [tileHeader, ...rows] = tileBlock
                 .split('\n')
                 .map(line => line.trim());
             const [_, tileIdText] = /Tile (\d+):/.exec(tileHeader);
-            const borderTop = tileLines[0];
-            const borderRight = tileLines
-                .map(line => line[line.length - 1])
-                .join('');
-            const borderBottom = tileLines[tileLines.length - 1];
-            const borderLeft = tileLines
-                .map(line => line[0])
-                .join('');
             return {
                 id: parseInt(tileIdText),
-                border: {
-                    top: borderTop,
-                    right: borderRight,
-                    bottom: borderBottom,
-                    left: borderLeft,
-                },
+                rows,
             };
         });
 }
@@ -175,27 +166,27 @@ function test1() {
     `);
     // test parseInput
     console.assert(tile.id === 42);
-    console.assert(tile.border.top === '123');
-    console.assert(tile.border.right === '369');
-    console.assert(tile.border.bottom === '789');
-    console.assert(tile.border.left === '147');
+    console.assert(getBorder('top', tile.rows) === '123');
+    console.assert(getBorder('right', tile.rows) === '369');
+    console.assert(getBorder('bottom', tile.rows) === '789');
+    console.assert(getBorder('left', tile.rows) === '147');
     // test spinBorders
     spinTile(tile);
     // 741
     // 852
     // 963
-    console.assert(tile.border.top === '741');
-    console.assert(tile.border.right === '123');
-    console.assert(tile.border.bottom === '963');
-    console.assert(tile.border.left === '789');
+    console.assert(getBorder('top', tile.rows) === '741');
+    console.assert(getBorder('right', tile.rows) === '123');
+    console.assert(getBorder('bottom', tile.rows) === '963');
+    console.assert(getBorder('left', tile.rows) === '789');
     flipTile(tile);
     // 147
     // 258
     // 369
-    console.assert(tile.border.top === '147');
-    console.assert(tile.border.right === '789');
-    console.assert(tile.border.bottom === '369');
-    console.assert(tile.border.left === '123');
+    console.assert(getBorder('top', tile.rows) === '147');
+    console.assert(getBorder('right', tile.rows) === '789');
+    console.assert(getBorder('bottom', tile.rows) === '369');
+    console.assert(getBorder('left', tile.rows) === '123');
 }
 
 function resolve1(tiles) {
@@ -204,17 +195,14 @@ function resolve1(tiles) {
     firstPlaced.x = 0;
     firstPlaced.y = 0;
     let placedTiles = [firstPlaced];
-    const getMatchedTile = (borders, position) => tiles
+    const getMatchedTile = (rows, position) => tiles
         .find(tile => {
+            const border = getBorder(position, rows);
             const opposite = oppositePosition[position];
-            for (let i = 0; i < 4; i++) {
-                if (tile.border[opposite] === borders[position]) return true;
+            for (let i = 0; i < 8; i++) {
+                if (getBorder(opposite, tile.rows) === border) return true;
                 spinTile(tile);
-            }
-            flipTile(tile);
-            for (let i = 0; i < 4; i++) {
-                if (tile.border[opposite] === borders[position]) return true;
-                spinTile(tile);
+                if (i === 3) flipTile(tile);
             }
             return false;
         });
@@ -226,7 +214,7 @@ function resolve1(tiles) {
             placedTiles
                 .filter(tile => tile[coord] === count)
                 .forEach(tile => {
-                    const matchedTile = getMatchedTile(tile.border, direction);
+                    const matchedTile = getMatchedTile(tile.rows, direction);
                     if (!matchedTile) return;
                     matchedTile[coord] = tile[coord] + increment;
                     const otherCoord = coord === 'x' ? 'y' : 'x';
