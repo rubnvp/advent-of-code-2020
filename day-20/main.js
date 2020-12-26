@@ -1,112 +1,112 @@
-var inputText = `
-Tile 2311:
-..##.#..#.
-##..#.....
-#...##..#.
-####.#...#
-##.##.###.
-##...#.###
-.#.#.#..##
-..#....#..
-###...#.#.
-..###..###
+// var inputText = `
+// Tile 2311:
+// ..##.#..#.
+// ##..#.....
+// #...##..#.
+// ####.#...#
+// ##.##.###.
+// ##...#.###
+// .#.#.#..##
+// ..#....#..
+// ###...#.#.
+// ..###..###
 
-Tile 1951:
-#.##...##.
-#.####...#
-.....#..##
-#...######
-.##.#....#
-.###.#####
-###.##.##.
-.###....#.
-..#.#..#.#
-#...##.#..
+// Tile 1951:
+// #.##...##.
+// #.####...#
+// .....#..##
+// #...######
+// .##.#....#
+// .###.#####
+// ###.##.##.
+// .###....#.
+// ..#.#..#.#
+// #...##.#..
 
-Tile 1171:
-####...##.
-#..##.#..#
-##.#..#.#.
-.###.####.
-..###.####
-.##....##.
-.#...####.
-#.##.####.
-####..#...
-.....##...
+// Tile 1171:
+// ####...##.
+// #..##.#..#
+// ##.#..#.#.
+// .###.####.
+// ..###.####
+// .##....##.
+// .#...####.
+// #.##.####.
+// ####..#...
+// .....##...
 
-Tile 1427:
-###.##.#..
-.#..#.##..
-.#.##.#..#
-#.#.#.##.#
-....#...##
-...##..##.
-...#.#####
-.#.####.#.
-..#..###.#
-..##.#..#.
+// Tile 1427:
+// ###.##.#..
+// .#..#.##..
+// .#.##.#..#
+// #.#.#.##.#
+// ....#...##
+// ...##..##.
+// ...#.#####
+// .#.####.#.
+// ..#..###.#
+// ..##.#..#.
 
-Tile 1489:
-##.#.#....
-..##...#..
-.##..##...
-..#...#...
-#####...#.
-#..#.#.#.#
-...#.#.#..
-##.#...##.
-..##.##.##
-###.##.#..
+// Tile 1489:
+// ##.#.#....
+// ..##...#..
+// .##..##...
+// ..#...#...
+// #####...#.
+// #..#.#.#.#
+// ...#.#.#..
+// ##.#...##.
+// ..##.##.##
+// ###.##.#..
 
-Tile 2473:
-#....####.
-#..#.##...
-#.##..#...
-######.#.#
-.#...#.#.#
-.#########
-.###.#..#.
-########.#
-##...##.#.
-..###.#.#.
+// Tile 2473:
+// #....####.
+// #..#.##...
+// #.##..#...
+// ######.#.#
+// .#...#.#.#
+// .#########
+// .###.#..#.
+// ########.#
+// ##...##.#.
+// ..###.#.#.
 
-Tile 2971:
-..#.#....#
-#...###...
-#.#.###...
-##.##..#..
-.#####..##
-.#..####.#
-#..#.#..#.
-..####.###
-..#.#.###.
-...#.#.#.#
+// Tile 2971:
+// ..#.#....#
+// #...###...
+// #.#.###...
+// ##.##..#..
+// .#####..##
+// .#..####.#
+// #..#.#..#.
+// ..####.###
+// ..#.#.###.
+// ...#.#.#.#
 
-Tile 2729:
-...#.#.#.#
-####.#....
-..#.#.....
-....#..#.#
-.##..##.#.
-.#.####...
-####.#.#..
-##.####...
-##..#.##..
-#.##...##.
+// Tile 2729:
+// ...#.#.#.#
+// ####.#....
+// ..#.#.....
+// ....#..#.#
+// .##..##.#.
+// .#.####...
+// ####.#.#..
+// ##.####...
+// ##..#.##..
+// #.##...##.
 
-Tile 3079:
-#.#.#####.
-.#..######
-..#.......
-######....
-####.#..#.
-.#...#.##.
-#.#####.##
-..#.###...
-..#.......
-..#.###...
-`;
+// Tile 3079:
+// #.#.#####.
+// .#..######
+// ..#.......
+// ######....
+// ####.#..#.
+// .#...#.##.
+// #.#####.##
+// ..#.###...
+// ..#.......
+// ..#.###...
+// `;
 
 const reverseText = text => text.split('').reverse().join('');
 
@@ -189,7 +189,7 @@ function test1() {
     console.assert(getBorder('left', tile.rows) === '123');
 }
 
-function resolve1(tiles) {
+function getPlacedTiles(tiles) {
     const firstPlaced = tiles.shift(); // shift is pop from left
 
     firstPlaced.x = 0;
@@ -231,6 +231,12 @@ function resolve1(tiles) {
     resolveTo('left',   'x', -1);
     resolveTo('top',    'y', -1);
 
+    return placedTiles;
+}
+
+function resolve1(tiles) {
+    const placedTiles = getPlacedTiles(tiles);
+
     const allX = placedTiles.map(t => t.x);
     const allY = placedTiles.map(t => t.y);
     const [minX, maxX] = [Math.min(...allX), Math.max(...allX)];
@@ -246,13 +252,76 @@ function resolve1(tiles) {
         .reduce((mult, num) => mult * num, 1);
 }
 
-function resolve2(input) {
-    return input;
+function resolve2(tiles) {
+    const placedTiles = getPlacedTiles(tiles)
+        .map(tile => ({ // remove borders
+            ...tile,
+            rows: tile.rows
+                .slice(1, tile.rows.length - 1)
+                .map(row => row.slice(1, row.length - 1)),
+        }));
+
+    const allX = placedTiles.map(t => t.x);
+    const allY = placedTiles.map(t => t.y);
+    const [minX, maxX] = [Math.min(...allX), Math.max(...allX)];
+    const [minY, maxY] = [Math.min(...allY), Math.max(...allY)];
+
+
+    let tileMap = [];
+    for (let y = minY; y <= maxY; y++) {
+        for (let x = minX; x <= maxX; x++) {
+            const tile = placedTiles.find(t => t.x === x && t.y === y);
+            tile.rows.forEach((row, i) => {
+                if (x === minX) tileMap.push([]);
+                const offsetY = y - minY;
+                const posY = i + offsetY * tile.rows.length;
+                tileMap[posY].push(row);
+            });
+        }   
+    }
+    tileMap = {rows: tileMap.map(rows => rows.join(''))};
+
+    const seaMonsterSpots = `
+                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   
+        `.split('\n')
+        .slice(1, 4)
+        .map(row => row
+            .split('')
+            .reduce((arr, char, i) => {
+                if  (char === '#') arr.push(i);
+                return arr;
+            }, [])
+        );
+    const isSeaMonsterInPos = (x, y) => seaMonsterSpots
+        .every((row, i) => row
+            .every(index => tileMap.rows[y+i][x+index] === '#')
+        );
+    
+    let count = 0;
+    for (let i = 0; i < 8 && count === 0; i++) {
+        for (let y = 0; y < tileMap.rows.length - 3; y++) {
+            const row = tileMap.rows[y];
+            for (let x = 0; x < row.length; x++) {
+                if (isSeaMonsterInPos(x, y)) count++;
+            }
+        }
+        if (!count) {
+            spinTile(tileMap);
+            if (i === 3) flipTile(tileMap);
+        }
+    }
+
+    return tileMap.rows
+        .flatMap(row => row.split(''))
+        .filter(char => char === '#')
+        .length - count * seaMonsterSpots.flat().length;
 }
 
 console.time('time');
 const input = parseInput(inputText);
-const output = resolve1(input);
+const output = resolve2(input);
 console.timeEnd('time');
 
 console.log(output);
